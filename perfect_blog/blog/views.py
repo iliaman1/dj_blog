@@ -1,10 +1,21 @@
 from django.shortcuts import render
 
+from .models import Post
+
 nav_menu = ['Создать пост', 'О всяком', 'Войти']
 
 
 def index(request):
-    return render(request, 'blog/index.html', {'nav_menu': nav_menu, 'title': 'Main page'})
+    posts = Post.objects.all()
+    return render(
+        request,
+        'blog/index.html',
+        {
+            'posts': posts,
+            'nav_menu': nav_menu,
+            'title': 'Main page'
+        }
+    )
 
 
 def about(request):

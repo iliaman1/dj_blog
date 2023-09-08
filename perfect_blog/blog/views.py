@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 
 from .models import Post, Category
 
@@ -33,7 +33,15 @@ def login(request):
 
 
 def show_post(request, post_id):
-    ...
+    post = get_object_or_404(Post, pk=post_id)
+
+    context = {
+        'post': post,
+        'nav_menu': nav_menu,
+        'title': post.title,
+        'cat_selected': post.category_id,
+    }
+    return render(request, 'blog/post.html', context=context)
 
 
 def show_category(request, category_id):

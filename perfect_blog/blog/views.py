@@ -1,6 +1,6 @@
-from django.shortcuts import render, get_object_or_404
-
+from django.shortcuts import render, get_object_or_404, redirect
 from .models import Post, Category
+from .forms import AddPostForm
 
 nav_menu = [
     {'title': 'Создать пост', 'url_name': 'addpost'},
@@ -25,15 +25,23 @@ def about(request):
 
 
 def addpost(request):
-    ...
+    if request.method == 'POST':
+        form = AddPostForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('home')
+    else:
+        form = AddPostForm()
+    context = {'form': form, 'nav_menu': nav_menu, 'title': 'Добавить пост'}
+    return render(request, 'blog/addpost.html', context=context)
 
 
 def login(request):
     ...
 
 
-def show_post(request, post_id):
-    post = get_object_or_404(Post, pk=post_id)
+def show_post(request, post_slug):
+    post = get_object_or_404(Post, slug=post_slug)
 
     context = {
         'post': post,
@@ -44,14 +52,13 @@ def show_post(request, post_id):
     return render(request, 'blog/post.html', context=context)
 
 
-def show_category(request, category_id):
-    posts = Post.objects.filter(category_id=category_id)
-    if len(posts) == 0:
-        return about(request)
+def show_category(request, category_slug):
+    posts = Post.objects.filter(slug=category_slug)
+    category = Category.objects.get(slug=category_slug)
     context = {
         'posts': posts,
         'nav_menu': nav_menu,
-        'title': f'категория {Category.objects.get(pk=category_id)}',
-        'cat_selected': category_id,
+        'title': f'категория {category}',
+        'cat_selected': category.pk,
     }
     return render(request, 'blog/index.html', context=context)

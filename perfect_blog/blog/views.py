@@ -1,5 +1,6 @@
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .models import Post
 from .forms import AddPostForm
@@ -49,10 +50,11 @@ class ShowPost(DataMixin, DetailView):
         )
 
 
-class AddPost(DataMixin, CreateView):
+class AddPost(LoginRequiredMixin, DataMixin, CreateView):
     form_class = AddPostForm
     template_name = 'blog/addpost.html'
-    success_url = reverse_lazy('home')
+    success_url = login_url = reverse_lazy('home')
+    raise_exception = False
 
     def get_context_data(self, *, object_list=None, **kwargs):
         return dict(**super().get_context_data(**kwargs), **self.get_user_context(title='Создание поста'))

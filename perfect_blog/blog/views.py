@@ -1,34 +1,24 @@
-from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
-from django.views.generic import ListView, DetailView, CreateView
+from django.views.generic import ListView, DetailView, CreateView, TemplateView
 
-from .models import Post, Category
+from .models import Post
 from .forms import AddPostForm
-
-nav_menu = [
-    {'title': 'Создать пост', 'url_name': 'addpost'},
-    {'title': 'О всяком', 'url_name': 'about'},
-    {'title': 'Войти', 'url_name': 'login'}
-]
+from .utils import DataMixin
 
 
-class BlogHome(ListView):
+class BlogHome(DataMixin, ListView):
     model = Post
     template_name = 'blog/index.html'
     context_object_name = 'posts'
 
     def get_context_data(self, *, object_list=None, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['nav_menu'] = nav_menu
-        context['title'] = 'Все посты'
-        context['cat_selected'] = 0
-        return context
+        return dict(**super().get_context_data(**kwargs), **self.get_user_context(title='Все посты'))
 
     def get_queryset(self):
         return Post.objects.filter(is_published=True)
 
 
-class BlogCategory(ListView):
+class BlogCategory(DataMixin, ListView):
     model = Post
     template_name = 'blog/index.html'
     context_object_name = 'posts'
@@ -36,16 +26,16 @@ class BlogCategory(ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['nav_menu'] = nav_menu
-        context['title'] = context['posts'][0].category
-        context['cat_selected'] = context['posts'][0].category_id
-        return context
+        return dict(
+            **context,
+            **self.get_user_context(title=context['posts'][0].category, cat_selected=context['posts'][0].category_id)
+        )
 
     def get_queryset(self):
         return Post.objects.filter(category__slug=self.kwargs['category_slug'], is_published=True)
 
 
-class ShowPost(DetailView):
+class ShowPost(DataMixin, DetailView):
     model = Post
     template_name = 'blog/post.html'
     slug_url_kwarg = 'post_slug'
@@ -53,26 +43,26 @@ class ShowPost(DetailView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['nav_menu'] = nav_menu
-        context['title'] = context['post'].title
-        context['cat_selected'] = context['post'].category_id
-        return context
+        return dict(
+            **context,
+            **self.get_user_context(title=context['post'].title, cat_selected=context['post'].category_id)
+        )
 
 
-class AddPost(CreateView):
+class AddPost(DataMixin, CreateView):
     form_class = AddPostForm
     template_name = 'blog/addpost.html'
     success_url = reverse_lazy('home')
 
     def get_context_data(self, *, object_list=None, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['nav_menu'] = nav_menu
-        context['title'] = 'Создание поста'
-        return context
+        return dict(**super().get_context_data(**kwargs), **self.get_user_context(title='Создание поста'))
 
 
-def about(request):
-    return render(request, 'blog/about.html', {'nav_menu': nav_menu, 'title': 'О всяком'})
+class About(DataMixin, TemplateView):
+    template_name = 'blog/about.html'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        return dict(**super().get_context_data(**kwargs), **self.get_user_context(title='О всяком'))
 
 
 def login(request):

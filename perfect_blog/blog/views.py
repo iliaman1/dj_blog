@@ -53,8 +53,8 @@ def show_post(request, post_slug):
 
 
 def show_category(request, category_slug):
-    posts = Post.objects.filter(slug=category_slug)
     category = Category.objects.get(slug=category_slug)
+    posts = Post.objects.filter(category=category.pk)
     context = {
         'posts': posts,
         'nav_menu': nav_menu,

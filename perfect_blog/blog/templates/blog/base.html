@@ -21,12 +21,9 @@
                         </a>
                     </li>
                     {% for element in nav_menu %}
-                    {% if not forloop.last %}
                     <li><a href="{% url element.url_name %}">{{element.title}}</a></li>
-                    {% else %}
-                    <li class="last"><a href="{% url element.url_name %}">{{element.title}}</a></li>
-                    {% endif %}
                     {% endfor %}
+                    <li class="last"><a href="{% url 'registration' %}">Регистрация</a> | <a href="{% url 'login' %}">Войти</a> </li>
                 </ul>
                 <div class="clear"></div>
             </div>

@@ -23,7 +23,11 @@
                     {% for element in nav_menu %}
                     <li><a href="{% url element.url_name %}">{{element.title}}</a></li>
                     {% endfor %}
+                    {% if request.user.is_authenticated %}
+                    <li class="last">{{user.username}} | <a href="{% url 'logout' %}">Выйти</a> </li>
+                    {% else %}
                     <li class="last"><a href="{% url 'registration' %}">Регистрация</a> | <a href="{% url 'login' %}">Войти</a> </li>
+                    {% endif %}
                 </ul>
                 <div class="clear"></div>
             </div>

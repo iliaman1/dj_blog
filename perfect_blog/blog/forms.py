@@ -20,6 +20,7 @@ class AddPostForm(forms.ModelForm):
     def clean_title(self):  # user validator
         if len(self.cleaned_data['title']) > 100:
             raise ValidationError('Длинна превышает 100 символов')
+        return self.cleaned_data['title']
 
 # form don't linked with model
 # class AddPostForm(forms.Form):

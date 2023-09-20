@@ -59,6 +59,10 @@ class AddPost(LoginRequiredMixin, DataMixin, CreateView):
         'title': 'Создание поста'
     }
 
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+
 
 class About(DataMixin, TemplateView):
     template_name = 'blog/about.html'

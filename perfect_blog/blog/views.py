@@ -1,9 +1,9 @@
 from django.urls import reverse_lazy
-from django.views.generic import ListView, DetailView, CreateView, TemplateView
+from django.views.generic import ListView, DetailView, CreateView, TemplateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .models import Post
-from .forms import AddPostForm
+from .forms import AddPostForm, EditPostForm
 from .utils import DataMixin
 
 
@@ -36,6 +36,15 @@ class BlogCategory(DataMixin, ListView):
         return Post.objects.filter(category__slug=self.kwargs['category_slug'], is_published=True)
 
 
+class ShowMyPosts(LoginRequiredMixin, DataMixin, ListView):
+    model = Post
+    template_name = 'blog/index.html'
+    context_object_name = 'posts'
+
+    def get_queryset(self):
+        return Post.objects.filter(author=self.request.user)
+
+
 class ShowPost(DataMixin, DetailView):
     model = Post
     template_name = 'blog/post.html'
@@ -50,6 +59,7 @@ class ShowPost(DataMixin, DetailView):
         return super().get_context_data(**kwargs)
 
 
+
 class AddPost(LoginRequiredMixin, DataMixin, CreateView):
     form_class = AddPostForm
     template_name = 'blog/addpost.html'
@@ -62,6 +72,10 @@ class AddPost(LoginRequiredMixin, DataMixin, CreateView):
     def form_valid(self, form):
         form.instance.author = self.request.user
         return super().form_valid(form)
+
+
+class EditPost(LoginRequiredMixin, DataMixin, UpdateView):
+    form_class = EditPostForm
 
 
 class About(DataMixin, TemplateView):

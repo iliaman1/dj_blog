@@ -4,6 +4,6 @@
 <h1>{{post.title}}</h1>
 {{post.content|linebreaks}}
 {% if request.user == post.author %}
-<p class="link-read-post"><a href="#">Редактировать пост</a></p>
+<p class="link-read-post"><a href="{% url 'editpost' post_slug=post.slug %}">Редактировать пост</a></p>
 {% endif %}
 {% endblock %}

@@ -5,6 +5,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Post
 from .forms import AddPostForm, EditPostForm
 from .utils import DataMixin
+from .permissions import IsAuthorPermission
 
 
 class BlogHome(DataMixin, ListView):
@@ -74,8 +75,22 @@ class AddPost(LoginRequiredMixin, DataMixin, CreateView):
         return super().form_valid(form)
 
 
-class EditPost(LoginRequiredMixin, DataMixin, UpdateView):
-    form_class = EditPostForm
+class EditPost(LoginRequiredMixin, IsAuthorPermission, DataMixin, UpdateView):
+    model = Post
+    form_class = AddPostForm
+    template_name = 'blog/editpost.html'
+    slug_url_kwarg = 'post_slug'
+    context_object_name = 'post'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        post = self.get_object()
+        self.additional_context['title'] = post.title
+        self.additional_context['cat_selected'] = post.category_id
+
+        return super().get_context_data(**kwargs)
+
+
+
 
 
 class About(DataMixin, TemplateView):

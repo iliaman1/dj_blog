@@ -1,9 +1,10 @@
+from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, TemplateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from .models import Post
-from .forms import AddPostForm, EditPostForm
+from .models import Post, Comment
+from .forms import AddPostForm, AddCommentForm
 from .utils import DataMixin
 from .permissions import IsAuthorPermission
 
@@ -46,18 +47,25 @@ class ShowMyPosts(LoginRequiredMixin, DataMixin, ListView):
         return Post.objects.filter(author=self.request.user)
 
 
-class ShowPost(DataMixin, DetailView):
+class ShowPost(DataMixin, DetailView, CreateView):
     model = Post
     template_name = 'blog/post.html'
     slug_url_kwarg = 'post_slug'
     context_object_name = 'post'
+    form_class = AddCommentForm
 
     def get_context_data(self, *, object_list=None, **kwargs):
         post = self.get_object()
         self.additional_context['title'] = post.title
         self.additional_context['cat_selected'] = post.category_id
-
+        self.additional_context['comments'] = Comment.objects.filter(post=post.pk)
+        self.additional_context['form_comment'] = AddCommentForm
         return super().get_context_data(**kwargs)
+
+    def form_valid(self, form):
+        form.instance.post = self.get_object()
+        form.instance.owner = self.request.user
+        return super().form_valid(form)
 
 
 class AddPost(LoginRequiredMixin, DataMixin, CreateView):

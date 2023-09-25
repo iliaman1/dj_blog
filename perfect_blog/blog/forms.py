@@ -1,7 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 
-from .models import Post
+from .models import Post, Comment
 
 
 class AddPostForm(forms.ModelForm):
@@ -23,23 +23,13 @@ class AddPostForm(forms.ModelForm):
         return self.cleaned_data['title']
 
 
-class EditPostForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['category'].empty_label = 'Категория не выбрана'
-
+class AddCommentForm(forms.ModelForm):
     class Meta:
-        model = Post
-        fields = ['title', 'slug', 'content', 'is_published', 'category']
+        model = Comment
+        fields = ['text']
         widgets = {
-            'title': forms.TextInput(attrs={'class': 'form-input'}),
-            'content': forms.Textarea(attrs={'cols': 60, 'rows': 10})
+            'text': forms.Textarea(attrs={'cols': 60, 'rows': 2}),
         }
-
-    def clean_title(self):  # user validator
-        if len(self.cleaned_data['title']) > 100:
-            raise ValidationError('Длинна превышает 100 символов')
-        return self.cleaned_data['title']
 
 # form don't linked with model
 # class AddPostForm(forms.Form):

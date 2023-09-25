@@ -39,3 +39,18 @@ class Post(models.Model):
         verbose_name = 'Пост'
         verbose_name_plural = 'Посты'
         ordering = ['time_create', 'title']
+
+
+class Comment(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
+    owner = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE)
+    text = models.TextField()
+    time_create = models.DateTimeField(auto_now_add=True, verbose_name='Время публикации')
+
+    class Meta:
+        ordering = ['-time_create']
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
+
+    def get_absolute_url(self):
+        return reverse('post', kwargs={'post_slug': self.post.slug})

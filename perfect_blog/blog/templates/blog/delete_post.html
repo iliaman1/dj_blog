@@ -1,0 +1,16 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+<h1>{{title}}</h1>
+<form action="{% url 'deletepost' post_slug=post.slug %}" method="post">
+    {% csrf_token %}
+
+    <h1>Вы хотите удалить пост "{{ post.title }}"</h1>
+
+
+
+
+    <p class="link-read-post"><button type="submit">Удалить</button> <a href="{{ post.get_absolute_url }}">Отмена</a></p>
+</form>
+
+{% endblock %}

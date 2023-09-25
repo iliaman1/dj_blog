@@ -1,5 +1,5 @@
 from django.urls import reverse_lazy
-from django.views.generic import ListView, DetailView, CreateView, TemplateView, UpdateView
+from django.views.generic import ListView, DetailView, CreateView, TemplateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .models import Post
@@ -60,7 +60,6 @@ class ShowPost(DataMixin, DetailView):
         return super().get_context_data(**kwargs)
 
 
-
 class AddPost(LoginRequiredMixin, DataMixin, CreateView):
     form_class = AddPostForm
     template_name = 'blog/addpost.html'
@@ -90,7 +89,11 @@ class EditPost(LoginRequiredMixin, IsAuthorPermission, DataMixin, UpdateView):
         return super().get_context_data(**kwargs)
 
 
-
+class DeletePost(LoginRequiredMixin, IsAuthorPermission, DataMixin, DeleteView):
+    model = Post
+    slug_url_kwarg = 'post_slug'
+    template_name = 'blog/delete_post.html'
+    success_url = reverse_lazy('myposts')
 
 
 class About(DataMixin, TemplateView):

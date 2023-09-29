@@ -2,6 +2,7 @@ from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, TemplateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.utils.translation import gettext as _
 
 from .models import Post, Comment
 from .forms import AddPostForm, AddCommentForm
@@ -62,6 +63,7 @@ class ShowPost(DataMixin, DetailView, CreateView):
         self.additional_context['form_comment'] = AddCommentForm
         return super().get_context_data(**kwargs)
 
+    # переписать пост метод для формы когда получаю данные с формы
     def form_valid(self, form):
         form.instance.post = self.get_object()
         form.instance.owner = self.request.user

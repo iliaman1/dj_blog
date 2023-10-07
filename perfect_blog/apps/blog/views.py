@@ -2,7 +2,6 @@ from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, TemplateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.utils.translation import gettext as _
 
 from .models import Post, Comment
 from .forms import AddPostForm, AddCommentForm

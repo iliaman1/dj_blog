@@ -9,6 +9,7 @@ packages = [{include = "dj_blog"}]
 [tool.poetry.dependencies]
 python = "^3.11"
 django = "^4.2.4"
+python-gettext = "^5.0"
 
 
 [build-system]

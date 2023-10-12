@@ -1,4 +1,6 @@
-from django.shortcuts import redirect
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseRedirect
+from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, TemplateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -10,19 +12,15 @@ from .permissions import IsAuthorPermission
 
 
 class BlogHome(DataMixin, ListView):
-    model = Post
     template_name = 'blog/index.html'
     context_object_name = 'posts'
     additional_context = {
         'title': 'Все посты'
     }
-
-    def get_queryset(self):
-        return Post.objects.filter(is_published=True)
+    queryset = Post.objects.is_published().annotate_rating().order_by('-rating')
 
 
 class BlogCategory(DataMixin, ListView):
-    model = Post
     template_name = 'blog/index.html'
     context_object_name = 'posts'
     allow_empty = False
@@ -35,20 +33,19 @@ class BlogCategory(DataMixin, ListView):
         return super().get_context_data(**kwargs)
 
     def get_queryset(self):
-        return Post.objects.filter(category__slug=self.kwargs['category_slug'], is_published=True)
+        return Post.objects.is_published().filter(category__slug=self.kwargs['category_slug'])
 
 
 class ShowMyPosts(LoginRequiredMixin, DataMixin, ListView):
-    model = Post
     template_name = 'blog/index.html'
     context_object_name = 'posts'
 
     def get_queryset(self):
-        return Post.objects.filter(author=self.request.user)
+        return Post.objects.is_author(self.request.user).annotate_rating().order_by('-rating')
 
 
 class ShowPost(DataMixin, DetailView, CreateView):
-    model = Post
+    queryset = Post.objects.is_published().annotate_rating()
     template_name = 'blog/post.html'
     slug_url_kwarg = 'post_slug'
     context_object_name = 'post'
@@ -103,6 +100,34 @@ class DeletePost(LoginRequiredMixin, IsAuthorPermission, DataMixin, DeleteView):
     slug_url_kwarg = 'post_slug'
     template_name = 'blog/delete_post.html'
     success_url = reverse_lazy('myposts')
+
+
+@login_required
+def like_post(request, post_slug):
+    if request.method == "GET":
+        post = get_object_or_404(Post, slug=post_slug)
+        if not post.likes.filter(id=request.user.id).exists():
+            post.likes.add(request.user)
+            post.save()
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+        else:
+            post.likes.remove(request.user)
+            post.save()
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+@login_required
+def dislike_post(request, post_slug):
+    if request.method == "GET":
+        post = get_object_or_404(Post, slug=post_slug)
+        if not post.dislikes.filter(id=request.user.id).exists():
+            post.dislikes.add(request.user)
+            post.save()
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+        else:
+            post.dislikes.remove(request.user)
+            post.save()
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 class About(DataMixin, TemplateView):

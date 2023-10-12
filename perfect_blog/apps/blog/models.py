@@ -1,6 +1,7 @@
 from django.db import models
 from django.urls import reverse
 from django.contrib.auth.models import User
+from .queryset import PostQuerySet
 from django.utils.translation import gettext as _
 
 
@@ -29,6 +30,9 @@ class Post(models.Model):
     is_published = models.BooleanField(default=True, verbose_name=_('Публикация'))
     author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_('Автор'))
     category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name=_('Категории'))
+    likes = models.ManyToManyField(User, related_name='post_likes', blank=True)
+    dislikes = models.ManyToManyField(User, related_name='post_dislikes', blank=True)
+    objects = PostQuerySet.as_manager()
 
     def __str__(self):
         return self.title

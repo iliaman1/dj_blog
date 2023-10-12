@@ -5,6 +5,8 @@
 {{post.content|linebreaks}}
 {% if request.user == post.author %}
 <p class="link-read-post">
+    <a href="{% url 'like_post' post_slug=post.slug %}">Лайк {{ post.number_of_likes }}</a>
+    <a href="{% url 'dislike_post' post_slug=post.slug %}">Дизлайк {{ post.number_of_dislikes }}</a>
     <a href="{% url 'editpost' post_slug=post.slug %}">Редактировать пост</a>
     <a href="{% url 'deletepost' post_slug=post.slug %}">Удалить пост</a>
 </p>

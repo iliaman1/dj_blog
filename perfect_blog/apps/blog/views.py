@@ -5,10 +5,12 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, TemplateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from .models import Post, Comment
+from .models import Post, Comment, Vote
 from .forms import AddPostForm, AddCommentForm
 from .utils import DataMixin
 from .permissions import IsAuthorPermission
+
+from datetime import timedelta
 
 
 class BlogHome(DataMixin, ListView):
@@ -42,6 +44,33 @@ class ShowMyPosts(LoginRequiredMixin, DataMixin, ListView):
 
     def get_queryset(self):
         return Post.objects.is_author(self.request.user).annotate_rating().order_by('-rating')
+
+
+class BestOfTheDay(DataMixin, ListView):
+    template_name = 'blog/index.html'
+    context_object_name = 'posts'
+    additional_context = {
+        'title': 'Лучшие за день'
+    }
+    queryset = Post.objects.is_published().best_of_period(timedelta(days=1))
+
+
+class BestOfTheWeek(DataMixin, ListView):
+    template_name = 'blog/index.html'
+    context_object_name = 'posts'
+    additional_context = {
+        'title': 'Лучшие за неделю'
+    }
+    queryset = Post.objects.is_published().best_of_period(timedelta(weeks=1))
+
+
+class BestOfTheMonth(DataMixin, ListView):
+    template_name = 'blog/index.html'
+    context_object_name = 'posts'
+    additional_context = {
+        'title': 'Лучшие за месяц'
+    }
+    queryset = Post.objects.is_published().best_of_period(timedelta(weeks=4))
 
 
 class ShowPost(DataMixin, DetailView, CreateView):
@@ -103,31 +132,25 @@ class DeletePost(LoginRequiredMixin, IsAuthorPermission, DataMixin, DeleteView):
 
 
 @login_required
-def like_post(request, post_slug):
-    if request.method == "GET":
-        post = get_object_or_404(Post, slug=post_slug)
-        if not post.likes.filter(id=request.user.id).exists():
-            post.likes.add(request.user)
-            post.save()
-            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-        else:
-            post.likes.remove(request.user)
-            post.save()
-            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+def upvote_post(request, post_slug):
+    Vote.objects.update_or_create(
+        user=request.user,
+        post=get_object_or_404(Post, slug=post_slug),
+        defaults={"positive": True},
+    )
+
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 @login_required
-def dislike_post(request, post_slug):
-    if request.method == "GET":
-        post = get_object_or_404(Post, slug=post_slug)
-        if not post.dislikes.filter(id=request.user.id).exists():
-            post.dislikes.add(request.user)
-            post.save()
-            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-        else:
-            post.dislikes.remove(request.user)
-            post.save()
-            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+def downvote_post(request, post_slug):
+    Vote.objects.update_or_create(
+        user=request.user,
+        post=get_object_or_404(Post, slug=post_slug),
+        defaults={"positive": False},
+    )
+
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 class About(DataMixin, TemplateView):

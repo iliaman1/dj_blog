@@ -3,7 +3,7 @@
 <html>
 <head>
     <title>{{title}}</title>
-    <link type="text/css" href="{% static 'blog/css/styles.css' %}" rel="stylesheet" />
+    <link type="text/css" href="{% static 'blog/css/styles.css' %}" rel="stylesheet"/>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <link rel="shortcut icon" href="{% static 'blog/images/main.ico' %}" type="image/x-icon"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -24,9 +24,10 @@
                     <li><a href="{% url element.url_name %}">{{element.title}}</a></li>
                     {% endfor %}
                     {% if request.user.is_authenticated %}
-                    <li class="last">{{user.username}} | <a href="{% url 'logout' %}">Выйти</a> </li>
+                    <li class="last">{{user.username}} | <a href="{% url 'logout' %}">Выйти</a></li>
                     {% else %}
-                    <li class="last"><a href="{% url 'registration' %}">Регистрация</a> | <a href="{% url 'login' %}">Войти</a> </li>
+                    <li class="last"><a href="{% url 'registration' %}">Регистрация</a> | <a href="{% url 'login' %}">Войти</a>
+                    </li>
                     {% endif %}
                 </ul>
                 <div class="clear"></div>
@@ -38,6 +39,7 @@
                     <!-- Sidebar слева -->
                     <td valign="top" class="left-chapters">
                         <ul id="leftchapters">
+                            <li>Категории:</li>
                             {% if cat_selected == 0 %}
                             <li class="selected">Все категории</li>
                             {% else %}
@@ -45,12 +47,16 @@
                             {% endif %}
 
                             {% for category in categories %}
-                                {% if category.pk == cat_selected %}
-                                <li class="selected">{{category.name}}</li>
-                                {% else %}
-                                <li><a href="{{ category.get_absolute_url }}">{{category.name}}</a></li>
-                                {% endif %}
+                            {% if category.pk == cat_selected %}
+                            <li class="selected">{{category.name}}</li>
+                            {% else %}
+                            <li><a href="{{ category.get_absolute_url }}">{{category.name}}</a></li>
+                            {% endif %}
                             {% endfor %}
+                            <li>Лучшие за:</li>
+                            <li><a href="{% url 'bestoftheday' %}">день</a></li>
+                            <li><a href="{% url 'bestoftheweek' %}">неделю</a></li>
+                            <li><a href="{% url 'bestofthemonth' %}">месяц</a></li>
                         </ul>
                     </td>
                     <!-- Конец Sidebar'а -->

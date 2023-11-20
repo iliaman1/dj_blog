@@ -1,0 +1,8 @@
+<p class="link-read-post">
+    <a href="{% url 'showuserposts' name=profile.name %}">Посты</a>
+    <a href="{% url 'showusercomments' name=profile.name %}">Ответы</a>
+    <a href="{% url 'showuservotes' name=profile.name %}">Нравится</a>
+    {% if request.user == page_user.user %}
+    <a href="{% url 'editprofile' name=profile.name %}">Редактировать профиль</a>
+    {% endif %}
+</p>

@@ -10,6 +10,7 @@ packages = [{include = "dj_blog"}]
 python = "^3.11"
 django = "^4.2.4"
 python-gettext = "^5.0"
+pillow = "^10.1.0"
 
 
 [build-system]

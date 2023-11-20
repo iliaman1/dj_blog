@@ -1,4 +1,4 @@
-{% extends 'blog/base.html' %}
+{% extends 'base.html' %}
 
 {% block content %}
 <h1>{{title}}</h1>
@@ -9,6 +9,7 @@
             <p class="first">Категория: {{ post.category }} -</p>
             <p class="first">Рейтинг поста: {{ post.rating }}</p>
             <p class="last">Дата: {{ post.update_at|date:"d-m-Y H:i:s" }}</p>
+            <p class="last">Автор: <a href="{{ post.author.profile.get_absolute_url }}">{{ post.author }}</a>|</p>
         </div>
         <h2>{{ post.title }}</h2>
         {% autoescape on %}

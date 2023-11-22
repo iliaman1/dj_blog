@@ -2,6 +2,7 @@ from django.contrib.auth import logout, login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy
+from django.views import View
 from django.views.generic import CreateView, DetailView, UpdateView
 from django.contrib.auth.views import LoginView
 from .models import Profile
@@ -21,12 +22,26 @@ class ShowProfile(BaseDataMixin, DetailView):
     def get_context_data(self, *args, **kwargs):
         page_user = get_object_or_404(Profile, name=self.kwargs['name'])
         context = super().get_context_data()
-        context['page_user'] = page_user
+        context['profile'] = page_user
         return context
 
     def get_object(self, queryset=None):
         return get_object_or_404(Profile, name=self.kwargs['name'])
 
+
+class ProfileFollowing(LoginRequiredMixin, View):
+    model = Profile
+
+    def get(self, request, name):
+        author = self.model.objects.get(name=name)
+        follower = request.user.profile
+
+        if follower in author.followers.all():
+            author.followers.remove(follower)
+        else:
+            author.followers.add(follower)
+
+        return redirect('showprofile', name)
 
 class ShowUserPosts(BaseDataMixin, DetailView):
     model = Profile
@@ -38,7 +53,7 @@ class ShowUserPosts(BaseDataMixin, DetailView):
     def get_context_data(self, *args, **kwargs):
         page_user = get_object_or_404(Profile, name=self.kwargs['name'])
         context = super().get_context_data()
-        context['page_user'] = page_user
+        context['profile'] = page_user
         context['posts'] = Post.objects.filter(author__profile__name=self.kwargs['name'])
         return context
 
@@ -56,7 +71,7 @@ class ShowUserComments(BaseDataMixin, DetailView):
     def get_context_data(self, *args, **kwargs):
         page_user = get_object_or_404(Profile, name=self.kwargs['name'])
         context = super().get_context_data()
-        context['page_user'] = page_user
+        context['profile'] = page_user
         context['posts'] = Post.objects.filter(comments__owner__profile__name=self.kwargs['name'])
         return context
 
@@ -74,7 +89,7 @@ class ShowUserVotes(BaseDataMixin, DetailView):
     def get_context_data(self, *args, **kwargs):
         page_user = get_object_or_404(Profile, name=self.kwargs['name'])
         context = super().get_context_data()
-        context['page_user'] = page_user
+        context['profile'] = page_user
         context['posts'] = Post.objects.filter(vote__user__profile__name=self.kwargs['name'])
         return context
 

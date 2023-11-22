@@ -17,6 +17,13 @@ class Profile(BaseModel):
     )
     bio = models.TextField(null=True, blank=True)
     email = models.EmailField(max_length=50, blank=True, null=True)
+    following = models.ManyToManyField(
+        'self',
+        verbose_name='Подписки',
+        related_name='followers',
+        symmetrical=False,
+        blank=True
+    )
 
     def __str__(self):
         return self.name

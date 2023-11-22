@@ -25,6 +25,13 @@ class Category(models.Model):
 
 
 class Post(BaseModel):
+    preview = models.ImageField(
+        null=True,
+        blank=True,
+        upload_to='images/preview/%Y/%m/%d/',
+        default='images/preview/default_preview.jpg',
+        verbose_name='Превью'
+    )
     title = models.CharField(max_length=128, verbose_name=_('Заголовок'))
     slug = models.SlugField(max_length=128, unique=True, db_index=True, verbose_name='URL')
     content = models.TextField(blank=True, verbose_name=_('Текст поста'))

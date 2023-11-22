@@ -9,7 +9,12 @@ from core.models import BaseModel
 class Profile(BaseModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     name = models.CharField(unique=True, max_length=50, blank=True, null=True)
-    avatar = models.ImageField(null=True, blank=True, upload_to="images/profile/%Y/%m/%d/")
+    avatar = models.ImageField(
+        null=True,
+        blank=True,
+        upload_to='images/profile/%Y/%m/%d/',
+        default='images/profile/default_ava.jpg'
+    )
     bio = models.TextField(null=True, blank=True)
     email = models.EmailField(max_length=50, blank=True, null=True)
 

@@ -1,6 +1,9 @@
 {% extends 'base.html' %}
 
 {% block content %}
+{% if post.preview %}
+    <p><img class="img-article-left thumb" src="{{ post.preview.url }}"></p>
+{% endif %}
 <h1>{{post.title}}</h1>
 {{post.content|linebreaks}}
 
@@ -33,7 +36,7 @@
         {% for comment in comments %}
             <li>
                 <div class="comment-panel">
-                    <p class="first">Чел: {{ comment.owner }}</p>
+                    <p class="first">Чел:<a href="{{ comment.owner.profile.get_absolute_url }}">{{ comment.owner }}</a></p>
                     <p class="last">Время: {{ comment.created_at|date:"d-m-Y H:i:s" }}</p>
                 </div>
                 {{ comment.text }}
